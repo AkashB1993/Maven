@@ -1,33 +1,26 @@
-node('master') 
+node('built-in')
 {
-  stage('ContinuousDownload') 
+   stage('ContinusDownloads')
   {
-    git 'https://github.com/selenium-saikrishna/maven.git'
-  } 
-  stage('ContinuousBuild') 
-  {
-    sh 'mvn package'
-  } 
-  stage('ContinuousDeployment') 
-  {
-    sh 'scp /var/lib/jenkins/workspace/Pipeline/webapp/target/webapp.war vagrant@10.10.10.32:/var/lib/tomcat7/webapps/qaenv.war'
+      git 'https://github.com/AkashB1993/Maven.git' 
   }
-  stage('ContinuousTesting') 
+   stage('ContinusBuild')
   {
-    git 'https://github.com/selenium-saikrishna/TestingOnLinux.git'
-    sh 'java -jar  /var/lib/jenkins/workspace/Pipeline/testing.jar'
+      sh 'mvn package'
   }
-  stage('ContinuousDelivery') 
+  stage('ContinuousDeploy')
+  {  
+       deploy adapters: [tomcat9(credentialsId: '14913ee1-760e-42cd-bd05-0d981085ad17', path: '', url: 'http://172.31.8.235:8080')], contextPath: 'test11', war: '**/*.war'
+ }
+   stage('ContinusTesting')
   {
-      input message: 'Waiting for approval from DM', submitter: 'Srinivas'
-    sh 'scp /var/lib/jenkins/workspace/Pipeline/webapp/target/webapp.war vagrant@10.10.10.33:/var/lib/tomcat7/webapps/prodenv.war'
+     git 'https://github.com/AkashB1993/functionaltesting.git'
+     
+     sh 'java -jar /home/ubuntu/.jenkins/workspace/DeclaretiveWebhook/testing.jar'
+
   }
-  
-  
-  
-  
-  
-  
-  
-  
+  stage('continuousDelivary')
+  {
+       deploy adapters: [tomcat9(credentialsId: '14913ee1-760e-42cd-bd05-0d981085ad17', path: '', url: 'http://172.31.3.24:8080')], contextPath: 'prod11', war: '**/*.war' 
+  }
 }
