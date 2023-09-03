@@ -1,0 +1,26 @@
+node('built-in')
+{
+   stage('ContinusDownloads')
+  {
+      git 'https://github.com/AkashB1993/Maven.git'
+      
+  }
+   stage('ContinusBuild')
+  {
+      sh 'mvn package'
+  }
+  stage('ContinuousDeploy')
+  {
+     deploy adapters: [tomcat9(credentialsId: '14913ee1-760e-42cd-bd05-0d981085ad17', path: '', url: 'http://172.31.8.235:8080')], contextPath: 'testmaven', war: '**/*.war' 
+  }
+   stage('ContinusTesting')
+  {
+     git 'https://github.com/AkashB1993/functionaltesting.git'
+     sh 'java -jar  /home/ubuntu/.jenkins/workspace/StriptAfterMAven/testing.jar'   
+  }
+  stage('continuousDelivary')
+  {
+      input message: 'production fail plz ckh', submitter: 'akash'
+       deploy adapters: [tomcat9(credentialsId: '14913ee1-760e-42cd-bd05-0d981085ad17', path: '', url: 'http://172.31.3.24:8080')], contextPath: 'prodmaven', war: '**/*.war' 
+  }
+}
